@@ -440,32 +440,28 @@ describe "the lockfile format" do
     G
   end
 
-  it "persists the spec for all platforms to the lockfile" do
-    ['ruby', 'x86-darwin-6', 'universal-java-14'].each do |p|
-      build_gem "omg_platform", "1.0", :to_system => true do |s|
-        s.platform = Gem::Platform.new(p)
-      end
+  it "persists the spec's platform to the lockfile" do
+    build_gem "platform_specific", "1.0.0", :to_system => true do |s|
+      s.platform = Gem::Platform.new('universal-java-16')
     end
 
     install_gemfile <<-G
-      Gem.platforms = [Gem::Platform::RUBY]
+      Gem.platforms = [Gem::Platform::RUBY, Gem::Platform.new('universal-java-16')]
       source "file://#{gem_repo1}"
-      gem "omg_platform"
+      gem "platform_specific"
     G
 
     lockfile_should_be <<-G
       GEM
         remote: file:#{gem_repo1}/
         specs:
-          omg_platform (1.0)
-          omg_platform (1.0-universal-java-14)
-          omg_platform (1.0-x86-darwin-6)
+          platform_specific (1.0-java)
 
       PLATFORMS
-        ruby
+        java
 
       DEPENDENCIES
-        omg_platform
+        platform_specific
     G
   end
 end

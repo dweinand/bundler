@@ -134,6 +134,7 @@ describe "bundle cache" do
         source "file://#{gem_repo1}"
         gem "platform_specific"
       G
+
       cached_gem("platform_specific-1.0-#{Gem::Platform.local}").should exist
       cached_gem("platform_specific-1.0-java").should exist
     end
