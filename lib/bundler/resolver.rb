@@ -152,10 +152,6 @@ module Bundler
     def start(reqs)
       activated = {}
 
-      @base.each do |s|
-        STDERR.puts " * #{s.full_name}" if ENV['DEBUGZ']
-      end
-
       resolve(reqs, activated)
     end
 
@@ -338,7 +334,7 @@ module Bundler
         d = dep.dep
       end
       index = @source_requirements[d.name] || @index
-      results = @base[d.name] + index.search_for_all_platforms(d)
+      results = index.search_for_all_platforms(d, @base[d.name])
 
       if results.any?
         version = results.first.version
