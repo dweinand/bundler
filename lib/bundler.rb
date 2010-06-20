@@ -48,6 +48,7 @@ module Bundler
   class DeprecatedOption < BundlerError; status_code(12) ; end
   class GemspecError     < BundlerError; status_code(14) ; end
   class InvalidOption    < BundlerError; status_code(15) ; end
+  class GroupError       < BundlerError; status_code(16) ; end
 
   class VersionConflict  < BundlerError
     attr_reader :conflicts
@@ -93,6 +94,7 @@ module Bundler
     end
 
     def setup(*groups)
+      check_installed(groups)
       return @setup if @setup
 
       if groups.empty?
@@ -203,6 +205,18 @@ module Bundler
       end
 
       Gem.clear_paths
+    end
+
+    def check_installed(groups)
+      uninstalled = groups & Bundler.settings.without
+      if uninstalled.any?
+        if uninstalled.size == 1
+          msg = "Group '#{uninstalled}' is"
+        else
+          msg = "Groups '#{uninstalled[0..-2].join("', '")}' and '#{uninstalled[-1]}' are"
+        end
+        raise GroupError, msg << " not installed"
+      end
     end
 
     def upgrade_lockfile
